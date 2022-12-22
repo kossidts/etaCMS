@@ -46,3 +46,26 @@ ETA.debugger = namespace => {
 };
 
 const debug = ETA.debugger("settings");
+
+// Load configs
+ETA.configs = {};
+
+try {
+    debug("Try to load config file");
+    let configs = ETA.require_module("eta-configs.js");
+    ETA.configs = { ...configs };
+    debug("Settings loaded from configs file");
+} catch (e) {
+    debug(e.code + " - Now use environment variables if provided");
+} finally {
+    debug("DB Configs will be overwritten with environment variables if provided");
+    ETA.configs.DB_HOST = process.env.DB_HOST || ETA.configs.DB_HOST;
+    ETA.configs.DB_NAME = process.env.DB_NAME || ETA.configs.DB_NAME;
+    ETA.configs.DB_USER = process.env.DB_USER || ETA.configs.DB_USER;
+    ETA.configs.DB_PASSWORD = process.env.DB_PASSWORD || ETA.configs.DB_PASSWORD;
+    ETA.configs.DB_TABLE_PREFIX = process.env.DB_TABLE_PREFIX || ETA.configs.DB_TABLE_PREFIX;
+}
+
+ETA.configs.LIMIT_INSTALL_MAX_TRIES = process.env.LIMIT_INSTALL_MAX_TRIES || 3;
+ETA.configs.PORT = process.env.PORT || 8888;
+
