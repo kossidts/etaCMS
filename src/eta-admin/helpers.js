@@ -67,3 +67,16 @@ helpers.resolve_uri = (mountPoint, endPoint = "", addSlashes = true) => {
 
     return url_path + endPoint;
 };
+
+/**
+ * Generate a random number. By default a number between 0 and 100
+ *
+ * @param  {Object} arg {min: 0, max:100}
+ * @return {Number}    the generated random number
+ */
+helpers.random_number = arg => {
+    arg = arg || {};
+    min = arg.min || 0;
+    max = arg.max || 100;
+    return Math.floor(max * Math.random() + min);
+};
