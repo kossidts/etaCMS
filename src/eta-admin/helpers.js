@@ -80,3 +80,35 @@ helpers.random_number = arg => {
     max = arg.max || 100;
     return Math.floor(max * Math.random() + min);
 };
+
+/**
+ * Generate salt
+ *
+ * Inspired by the wordpress default salt generator
+ * @see https://api.wordpress.org/secret-key/1.1/salt/
+ *
+ * @param  {Integer} salt_length Defaults to 64.
+ * @param  {Boolean} use_special_char
+ *
+ * @return {String}
+ */
+helpers.generate_salt = (salt_length, use_special_char) => {
+    let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let specialChars = "!@#$%^&*()-_ []{}<>~`+=,.;:/?|";
+
+    if (use_special_char !== false) {
+        chars += specialChars;
+    }
+    const max = chars.length - 1;
+
+    // salt_length = Math.abs(~~salt_length) || 64;
+    salt_length = typeof salt_length === "number" ? parseInt(salt_length, 10) : 64;
+    let key = "";
+    for (let i = 0; i < salt_length; i++) {
+        key += chars.charAt(helpers.random_number({ min: 0, max: max }));
+    }
+
+    return key;
+};
+
+helpers.generate_simple_key = () => helpers.generate_salt(16, false);
