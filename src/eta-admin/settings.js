@@ -69,3 +69,10 @@ try {
 ETA.configs.LIMIT_INSTALL_MAX_TRIES = process.env.LIMIT_INSTALL_MAX_TRIES || 3;
 ETA.configs.PORT = process.env.PORT || 8888;
 
+// Check if the node environment is set to production
+ETA.isProduction = app => {
+    if (app && typeof app.get === "function") {
+        return app.get("env") === "production";
+    }
+    return process.env.NODE_ENV === "production";
+};
