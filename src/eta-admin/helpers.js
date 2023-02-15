@@ -17,21 +17,21 @@ const ensure_eta_directory = dirname_str => {
 // Require modules
 helpers.require_module = (locationStr, filePathStr) => {
     if (filePathStr === undefined) {
-        return appRootPath.require(locationStr);
+        return appRootPath.require(`src/${locationStr}`);
     }
 
     locationStr = ensure_eta_directory(locationStr);
-    return appRootPath.require(`${locationStr}/${filePathStr}`);
+    return appRootPath.require(`src/${locationStr}/${filePathStr}`);
 };
 
 // Resolve path for a file or a directory
 helpers.resolve_path = (locationStr, filePathStr) => {
     if (filePathStr === undefined) {
-        return appRootPath.resolve(locationStr);
+        return appRootPath.resolve(`src/${locationStr}`);
     }
 
     locationStr = ensure_eta_directory(locationStr);
-    return appRootPath.resolve(`${locationStr}/${filePathStr}`);
+    return appRootPath.resolve(`src/${locationStr}/${filePathStr}`);
 };
 
 // Resolve site urls

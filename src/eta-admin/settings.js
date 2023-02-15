@@ -52,7 +52,7 @@ ETA.configs = {};
 
 try {
     debug("Try to load config file");
-    let configs = ETA.require_module("eta-configs.js");
+    let configs = ETA.require_module("eta-config.js");
     ETA.configs = { ...configs };
     debug("Settings loaded from configs file");
 } catch (e) {
