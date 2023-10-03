@@ -1,6 +1,7 @@
-const appRootPath = require("app-root-path");
+// const appRootPath = require("app-root-path");
 
-const helpers = (module.exports = {});
+// const helpers = (module.exports = {});
+const helpers = {};
 const etaPrefix = "eta-";
 
 const ensure_eta_directory = dirname_str => {
@@ -15,24 +16,24 @@ const ensure_eta_directory = dirname_str => {
  * Make it easier for other modules to retrieve the right paths and urls
  */
 // Require modules
-helpers.require_module = (locationStr, filePathStr) => {
-    if (filePathStr === undefined) {
-        return appRootPath.require(`src/${locationStr}`);
-    }
+// helpers.require_module = (locationStr, filePathStr) => {
+//     if (filePathStr === undefined) {
+//         return appRootPath.require(`src/${locationStr}`);
+//     }
 
-    locationStr = ensure_eta_directory(locationStr);
-    return appRootPath.require(`src/${locationStr}/${filePathStr}`);
-};
+//     locationStr = ensure_eta_directory(locationStr);
+//     return appRootPath.require(`src/${locationStr}/${filePathStr}`);
+// };
 
 // Resolve path for a file or a directory
-helpers.resolve_path = (locationStr, filePathStr) => {
-    if (filePathStr === undefined) {
-        return appRootPath.resolve(`src/${locationStr}`);
-    }
+// helpers.resolve_path = (locationStr, filePathStr) => {
+//     if (filePathStr === undefined) {
+//         return appRootPath.resolve(`src/${locationStr}`);
+//     }
 
-    locationStr = ensure_eta_directory(locationStr);
-    return appRootPath.resolve(`src/${locationStr}/${filePathStr}`);
-};
+//     locationStr = ensure_eta_directory(locationStr);
+//     return appRootPath.resolve(`src/${locationStr}/${filePathStr}`);
+// };
 
 // Resolve site urls
 helpers.resolve_uri = (mountPoint, endPoint = "", addSlashes = true) => {
@@ -112,3 +113,5 @@ helpers.generate_salt = (salt_length, use_special_char) => {
 };
 
 helpers.generate_simple_key = () => helpers.generate_salt(16, false);
+
+export default Object.freeze(helpers);
