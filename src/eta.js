@@ -2,21 +2,13 @@
 
 import "dotenv/config.js";
 
-// Set a globally available Object for all sub module
-// const ETA = (global.ETA = {});
-// Load settings
-import settings from "./eta-admin/settings.js";
-import config from "./eta-config.js";
-
-// Load the web server
-// const CMSServer = require('./cms-libs/cms-web-server.js');
+import ETA from "./eta-admin/settings.js";
+// const ETAServer = ;
 
 // Debugger for this module
-// const debug = ETA.debugger("app");
-const debug = console.log;
+const debug = ETA.debugger("app");
 
 // Main app
-// const ETApp = (module.exports = {});
 const ETApp = {};
 
 ETApp.init = () => {
@@ -36,6 +28,10 @@ ETApp.init = () => {
     debug(`\tPID: ${process.pid}`);
     debug(`\tPPID: ${process.ppid}`);
     debug(`\tDebug Port: ${process.debugPort}`);
+    // debug(`\tExecPath: ${process.execPath}`);
+    // debug(`\tINIT_CWD: ${process.env.INIT_CWD}`);
+    // debug(`\tTMPDIR: ${process.env.TMPDIR}`);
+    // debug(`\tPWD: ${process.env.PWD}`);
     debug(`\tApp license: ${process.env.npm_config_init_license}`);
     debug(`-------------------------------------------------`);
 

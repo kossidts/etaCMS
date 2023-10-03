@@ -4,16 +4,25 @@ import path from "node:path";
 
 // const appRootPath = require("app-root-path");
 import helpers from "./helpers.js";
+import config from "../eta-config.js";
+
+// context
+const ETA = {
+    appRoot: config.AppRoot,
+    // appRoot: import.meta.resolve(".")
+    // appRoot: pathToFileURL(new URL(".", import.meta.url).toString())
+};
 
 const settings = {};
 const etaPrefix = "eta-";
 
+// ETA.appRoot
 // ETA.resolve_path = helpers.resolve_path;
 // ETA.require_module = helpers.require_module;
 
 // Paths
-settings.CONTENT_RELATIVE_PATH = "eta-content";
-settings.THEME_RELATIVE_PATH = path.join(settings.CONTENT_RELATIVE_PATH, "themes");
+ETA.CONTENT_RELATIVE_PATH = "eta-content";
+ETA.THEME_RELATIVE_PATH = path.join(ETA.CONTENT_RELATIVE_PATH, "themes");
 
 /*
 ETA.THEME_ROOT_PATH = ETA.resolve_path(ETA.THEME_RELATIVE_PATH);
@@ -44,6 +53,13 @@ ETA.appIsInstalling = false;
  *  const debug = ETA.debugger('my-module');
  *  debug('This is a debug message')
  */
+ETA.debugger = namespace => {
+    // if (typeof namespace === "string" && namespace.trim() !== "") {
+    //     return _debug.extend(namespace.trim());
+    // }
+    // return _debug;
+    return console.log;
+};
 /*
 const _debug = require("debug")(ETA.appName);
 ETA.debugger = namespace => {
@@ -113,4 +129,4 @@ ETA.isProduction = app => {
 // console.log(ETA);
 */
 
-export default Object.freeze(settings);
+export default Object.freeze(ETA);
