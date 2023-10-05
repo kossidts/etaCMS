@@ -4,7 +4,7 @@
     "description": "",
     "main": "src/eta.js",
     "scripts": {
-        "dev": "DEBUG=etacms:*,express:application node src/eta.js",
+        "dev": "DEBUG=etacms:*,express:application node --trace-warnings src/eta.js",
         "start": "NODE_ENV=production node src/eta.js",
         "build": "testing the CMD-SHIFT-B"
     },

@@ -11,6 +11,25 @@ const ensure_eta_directory = dirname_str => {
     return dirname_str;
 };
 
+// Set some constants
+// CMS.SEC_IN_MS = 1000;
+// CMS.MIN_IN_MS = 60 * CMS.SEC_IN_MS;
+// CMS.HOUR_IN_MS = 60 * CMS.MIN_IN_MS;
+// CMS.DAY_IN_MS = 24 * CMS.HOUR_IN_MS;
+// CMS.WEEK_IN_MS = 7 * CMS.DAY_IN_MS;
+
+// CMS.mkdir = helpers.mkdir;
+// CMS.trimLChar = helpers.trimLChar;
+// CMS.trimRChar = helpers.trimRChar;
+
+// Check if the node environment is set to production
+// ETA.isProduction = app => {
+//     if (app && typeof app.get === "function") {
+//         return app.get("env") === "production";
+//     }
+//     return process.env.NODE_ENV === "production";
+// };
+
 /**
  * Helper for retrieving paths and urls
  * Make it easier for other modules to retrieve the right paths and urls
