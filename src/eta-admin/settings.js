@@ -8,20 +8,19 @@ import config from "../eta-config.js";
 import helpers from "./helpers.js";
 // const appRootPath = require("app-root-path");
 
-const etaPrefix = "eta-";
 // const { default: pkg } = await import(path.join(config.AppRoot, "../package.json"), { assert: { type: "json" } });
 const pkg = JSON.parse(await readFile(new URL("../package.json", config.AppRoot)));
 
 // context
 const ETA = {
     appRoot: config.AppRoot,
-    CONTENT_RELATIVE_PATH: `${etaPrefix}content`,
     appName: pkg.name,
     appVersion: pkg.version,
     appInstalled: false,
     appIsInstalling: false,
 };
 
+ETA.CONTENT_RELATIVE_PATH = "eta-content";
 ETA.THEME_RELATIVE_PATH = path.join(ETA.CONTENT_RELATIVE_PATH, "themes");
 
 /*

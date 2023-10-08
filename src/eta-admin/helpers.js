@@ -1,8 +1,8 @@
 // const appRootPath = require("app-root-path");
 
-// const helpers = (module.exports = {});
-const helpers = {};
 const etaPrefix = "eta-";
+
+const helpers = {};
 
 const ensure_eta_directory = dirname_str => {
     if (!/^eta\-/.test(dirname_str)) {
@@ -12,11 +12,11 @@ const ensure_eta_directory = dirname_str => {
 };
 
 // Set some constants
-// CMS.SEC_IN_MS = 1000;
-// CMS.MIN_IN_MS = 60 * CMS.SEC_IN_MS;
-// CMS.HOUR_IN_MS = 60 * CMS.MIN_IN_MS;
-// CMS.DAY_IN_MS = 24 * CMS.HOUR_IN_MS;
-// CMS.WEEK_IN_MS = 7 * CMS.DAY_IN_MS;
+helpers.SEC_IN_MS = 1000;
+helpers.MIN_IN_MS = 60 * CMS.SEC_IN_MS;
+helpers.HOUR_IN_MS = 60 * CMS.MIN_IN_MS;
+helpers.DAY_IN_MS = 24 * CMS.HOUR_IN_MS;
+helpers.WEEK_IN_MS = 7 * CMS.DAY_IN_MS;
 
 // CMS.mkdir = helpers.mkdir;
 // CMS.trimLChar = helpers.trimLChar;
@@ -89,10 +89,10 @@ helpers.resolve_uri = (mountPoint, endPoint = "", addSlashes = true) => {
 };
 
 /**
- * Generate a random number. By default a number between 0 and 100
+ * Generate a random number between min and max
  *
- * @param  {Object} arg {min: 0, max:100}
- * @return {Number}    the generated random number
+ * @param  {{min?: number, max?: number}} [arg] - Defaults min=0, max=100
+ * @return {number}    the generated random number
  */
 helpers.random_number = arg => {
     arg = arg || {};
@@ -107,10 +107,10 @@ helpers.random_number = arg => {
  * Inspired by the wordpress default salt generator
  * @see https://api.wordpress.org/secret-key/1.1/salt/
  *
- * @param  {Integer} salt_length Defaults to 64.
- * @param  {Boolean} use_special_char
+ * @param  {number} salt_length Defaults to 64.
+ * @param  {boolean} use_special_char
  *
- * @return {String}
+ * @return {string}
  */
 helpers.generate_salt = (salt_length, use_special_char) => {
     let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
