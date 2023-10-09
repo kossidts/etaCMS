@@ -1,4 +1,8 @@
-// const appRootPath = require("app-root-path");
+"use strict";
+
+import buffer from "node:buffer";
+import crypto from "node:crypto";
+import intval from "intval";
 
 const etaPrefix = "eta-";
 
@@ -13,10 +17,10 @@ const ensure_eta_directory = dirname_str => {
 
 // Set some constants
 helpers.SEC_IN_MS = 1000;
-helpers.MIN_IN_MS = 60 * CMS.SEC_IN_MS;
-helpers.HOUR_IN_MS = 60 * CMS.MIN_IN_MS;
-helpers.DAY_IN_MS = 24 * CMS.HOUR_IN_MS;
-helpers.WEEK_IN_MS = 7 * CMS.DAY_IN_MS;
+helpers.MIN_IN_MS = 60 * helpers.SEC_IN_MS;
+helpers.HOUR_IN_MS = 60 * helpers.MIN_IN_MS;
+helpers.DAY_IN_MS = 24 * helpers.HOUR_IN_MS;
+helpers.WEEK_IN_MS = 7 * helpers.DAY_IN_MS;
 
 // CMS.mkdir = helpers.mkdir;
 // CMS.trimLChar = helpers.trimLChar;
@@ -54,9 +58,120 @@ helpers.WEEK_IN_MS = 7 * CMS.DAY_IN_MS;
 //     return appRootPath.resolve(`src/${locationStr}/${filePathStr}`);
 // };
 
+/**
+ * Remove whitespaces from a given text. Can be used to pretify template strings
+ *
+ * @param  {string} text
+ * @return {string}
+ */
+helpers.rmWhitespace = text => {
+    // Have to use two separate replace here as `^` and `$` operators don't
+    // work well with `\r` and empty lines don't work well with the `m` flag.
+    return typeof text !== "string" ? "" : text.replace(/[\r\n]+/g, "\n").replace(/^\s+|\s+$/gm, "");
+};
+
+/**
+ * Remove the character from the beginning of a string
+ * @param {string} str The string to operate on
+ * @param {string} char Character(s) to remove
+ * @returns {string} The timmed string
+ */
+helpers.trimLChar = (str, char) => {
+    if (typeof str !== "string" || typeof char !== "string") {
+        // throw new Error("Expecting two strings");
+        return str;
+    }
+
+    //if (char === undefined) char = "\s";
+
+    return str.replace(new RegExp("^[" + char + "]+"), "");
+};
+
+/**
+ * Remove the character from the end of a string
+ * @param {string} str The string to operate on
+ * @param {string} char Character(s) to remove
+ * @returns {string} The timmed string
+ */
+helpers.trimRChar = (str, char) => {
+    if (typeof str !== "string" || typeof char !== "string") {
+        // throw new Error("Expecting two strings");
+        return str;
+    }
+
+    //if (char === undefined) char = "\s";
+
+    return str.replace(new RegExp("[" + char + "]+$"), "");
+};
+
+/**
+ * Slugify a given string
+ * @see https://developer.wordpress.org/reference/functions/remove_accents/
+ *
+ * @param {string} str The string to slugify
+ * @param {boolean} [uri]
+ * @returns {string}
+ */
+helpers.slugify = (str, uri = false) => {
+    str = str ?? "";
+
+    if (typeof str != "string") {
+        return str;
+    }
+    str = str.trim().toLowerCase();
+    if (str == "") {
+        return "";
+    }
+
+    /*
+    if ( ! preg_match( '/[\x80-\xff]/', $string ) ) {
+       return $string;
+    }
+    */
+
+    // Assuming locale de_DE, de_CH, ..
+    str = str.replace(/ö/g, "oe").replace(/ä/g, "ae").replace(/ü/g, "ue").replace(/ß/g, "ss");
+
+    if (uri === true) {
+        // do something different
+    }
+
+    str = buffer
+        .transcode(Buffer.from(str), "utf8", "ascii") // convert to ASCII removing accents
+        .toString("ascii")
+        // remove everything except for charactes: word, digit, - .
+        .replace(/[^a-z0-9\-]/g, "")
+        // replace whitespaces
+        .replace(/\s+/g, "-")
+        // replace underscore
+        .replace(/\_/g, "-")
+        // replace multiple dashed
+        .replace(/\-+/g, "-")
+        // replace trailing whitespaces
+        .replace(/^\s+|\s+$/g, "")
+        // replace trailing dashes
+        .replace(/^\-|\-$/g, "");
+
+    return str;
+};
+
+/**
+ * Slugify a filename.
+ * @param {string} filename A filename
+ * @returns {string} The slugified filename
+ */
+helpers.slugify_filename = filename => {
+    // Split and remove all dots by splitting at '.'
+    let nameArray = filename.split(".");
+    let extension = helpers.slugify(nameArray.pop());
+    let name = helpers.slugify(nameArray.join("-"));
+
+    return `${name}.${extension}`;
+};
+
 // Resolve site urls
 helpers.resolve_uri = (mountPoint, endPoint = "", addSlashes = true) => {
-    url_path = "";
+    let url_path = "";
     switch (mountPoint) {
         case "admin":
         case "dashboard":
@@ -96,9 +211,9 @@ helpers.resolve_uri = (mountPoint, endPoint = "", addSlashes = true) => {
  */
 helpers.random_number = arg => {
     arg = arg || {};
-    min = arg.min || 0;
-    max = arg.max || 100;
-    return Math.floor(max * Math.random() + min);
+    arg.min = arg.min || 0;
+    arg.max = arg.max || 100;
+    return Math.floor(arg.max * Math.random() + arg.min);
 };
 
 /**
@@ -121,8 +236,8 @@ helpers.generate_salt = (salt_length, use_special_char) => {
     }
     const max = chars.length - 1;
 
-    // salt_length = Math.abs(~~salt_length) || 64;
-    salt_length = typeof salt_length === "number" ? parseInt(salt_length, 10) : 64;
+    salt_length = intval(salt_length, 10, 64);
+
     let key = "";
     for (let i = 0; i < salt_length; i++) {
         key += chars.charAt(helpers.random_number({ min: 0, max: max }));
@@ -132,5 +247,68 @@ helpers.generate_salt = (salt_length, use_special_char) => {
 };
 
 helpers.generate_simple_key = () => helpers.generate_salt(16, false);
+
+
+/**
+ * Hash a given password using the nodejs built in crypto.pbkdf2
+ * @see https://nodejs.org/api/crypto.html
+ *
+ * The returned hash has the format (without the whitespaces):
+ *  algorithm $ power_of_iterations $ keylength $ salt $ hash
+ *
+ * @param  {string} pwd the password to be hashed
+ * @return {Promise} return a promise that resolves to [err, hash]
+ */
+helpers.hash_password = pwd => {
+    // the salt should be at least 16 bytes long
+    const salt = helpers.generate_salt(16, false);
+    const iteration_power = 6; // 1e6
+    const iterations = Math.pow(10, iteration_power); //Number(`1e${iteration_power}`);
+    const keylen = 64; // 128
+    const algo = "sha512"; // in crypto.getHashes()
+    return new Promise((resolve, reject) => {
+        crypto.pbkdf2(pwd, salt, iterations, keylen, algo, (err, derivedKey) => {
+            let hash = "";
+            if (!err) {
+                hash = `${algo}$${iteration_power}$${keylen}$${salt}$${derivedKey.toString("hex")}`;
+            }
+            resolve([err, hash]);
+        });
+    });
+};
+
+/**
+ * Verify if the hash of a given password matches the given hashstring
+ * The hashstring muss have the format returned by helpers.password_hash
+ * @param  {string} password
+ * @param  {string} hash
+ * @return {Promise} Promise that resolves to [err, hash]
+ */
+helpers.verify_password = (password, hash) => {
+    if (typeof password !== "string" || typeof hash !== "string") {
+        return Promise.resolve([new Error("The password and hashstring must be string"), false]);
+    }
+
+    let hashparts = hash.split("$");
+
+    return new Promise((resolve, reject) => {
+        if (hashparts.length != 5) {
+            return resolve([new Error("Wrong hash"), false]);
+        }
+        const algo = hashparts[0];
+        const iterations = Number(`1e${hashparts[1]}`); //1eX
+        const keylen = ~~hashparts[2];
+        const salt = hashparts[3];
+        const hashStr = hashparts[4];
+
+        crypto.pbkdf2(password, salt, iterations, keylen, algo, (err, derivedKey) => {
+            let match = false;
+            if (!err) {
+                match = hashStr === derivedKey.toString("hex");
+            }
+            resolve([err, match]);
+        });
+    });
+};
 
 export default Object.freeze(helpers);

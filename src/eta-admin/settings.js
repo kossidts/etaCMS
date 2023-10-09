@@ -9,19 +9,60 @@ import helpers from "./helpers.js";
 // const appRootPath = require("app-root-path");
 
 // const { default: pkg } = await import(path.join(config.AppRoot, "../package.json"), { assert: { type: "json" } });
-const pkg = JSON.parse(await readFile(new URL("../package.json", config.AppRoot)));
+const pkg = JSON.parse(await readFile(new URL("../package.json", config.AppRoot), { encoding: "utf8" }));
 
-// context
+/** @type {string} */
+const CONTENT_RELATIVE_PATH = "eta-content";
+
+/** @type {string} */
+const THEME_RELATIVE_PATH = path.join(CONTENT_RELATIVE_PATH, "themes");
+
+/**
+ * Configure the debug module
+ *
+ * @usage
+ *  const debug = ETA.debugger('my-module');
+ *  debug('This is a debug message')
+ */
+const _debug = debug(pkg.name);
+
+/**
+ * @typedef {function} DebuggerFunction
+ * @param {string} namespace - The namespace for debugging.
+ * @returns {function} The debug function.
+ */
+
+/** @type {DebuggerFunction} */
+const _debugger = namespace => {
+    if (typeof namespace === "string" && namespace.trim() !== "") {
+        return _debug.extend(namespace.trim());
+    }
+    return _debug;
+};
+
+/**
+ * @typedef {Object} ETA
+ * @property {string} appRoot
+ * @property {string} appName
+ * @property {string} appVersion
+ * @property {boolean} appInstalled
+ * @property {boolean} appIsInstalling
+ * @property {string} CONTENT_RELATIVE_PATH
+ * @property {string} THEME_RELATIVE_PATH
+ * @property {DebuggerFunction} debugger
+ */
+
+/** @type {ETA} */
 const ETA = {
     appRoot: config.AppRoot,
     appName: pkg.name,
     appVersion: pkg.version,
     appInstalled: false,
     appIsInstalling: false,
+    CONTENT_RELATIVE_PATH,
+    THEME_RELATIVE_PATH,
+    debugger: _debugger,
 };
-
-ETA.CONTENT_RELATIVE_PATH = "eta-content";
-ETA.THEME_RELATIVE_PATH = path.join(ETA.CONTENT_RELATIVE_PATH, "themes");
 
 /*
 ETA.resolve_path = helpers.resolve_path;
@@ -33,21 +74,6 @@ ETA.PLUGIN_ROOT_PATH = ETA.resolve_path(ETA.PLUGIN_RELATIVE_PATH);
 
 ETA.resolve_theme_path = (filePathStr = "") => ETA.resolve_path(ETA.THEME_RELATIVE_PATH, filePathStr);
 */
-
-/**
- * Configure the debug module
- *
- * @usage
- *  const debug = ETA.debugger('my-module');
- *  debug('This is a debug message')
- */
-const _debug = debug(ETA.appName);
-ETA.debugger = namespace => {
-    if (typeof namespace === "string" && namespace.trim() !== "") {
-        return _debug.extend(namespace.trim());
-    }
-    return _debug;
-};
 
 /*
 // CMS.configs.COOKIE_SECRET = helpers.generate_salt(41, false);
@@ -72,7 +98,5 @@ ETA.debugger = namespace => {
 // CMS.make_slug = helpers.slugify;
 // CMS.sanitize_filename = helpers.slugify_filename;
 */
-
-debug(ETA);
 
 export default Object.freeze(ETA);

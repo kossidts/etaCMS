@@ -16,4 +16,6 @@ configs.MAX_INSTALL_TRIES = process.env.MAX_INSTALL_TRIES || 3;
 
 configs.PORT = process.env.PORT || 8888;
 
+configs.IS_PRODUCTION = process.env.NODE_ENV === "production";
+
 export default Object.freeze(configs);
