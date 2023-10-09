@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": true,
+        "strict": false,
+        "target": "ES2018",
+        "moduleResolution": "NodeNext",
+        "types": ["node"],
+        "module": "ESNext",
+        "allowSyntheticDefaultImports": true,
+        "outDir": "./dist"
+    },
+    "include": ["src/**/*"]
+}
