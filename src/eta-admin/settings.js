@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 import debug from "debug";
 
 import config from "../eta-config.js";
-import helpers from "./helpers.js";
+// import helpers from "./helpers.js";
 // const appRootPath = require("app-root-path");
 
 // const { default: pkg } = await import(path.join(config.AppRoot, "../package.json"), { assert: { type: "json" } });
@@ -31,8 +31,6 @@ const _debug = debug(pkg.name);
  * @param {string} namespace - The namespace for debugging.
  * @returns {function} The debug function.
  */
-
-/** @type {DebuggerFunction} */
 const _debugger = namespace => {
     if (typeof namespace === "string" && namespace.trim() !== "") {
         return _debug.extend(namespace.trim());
@@ -49,6 +47,7 @@ const _debugger = namespace => {
  * @property {boolean} appIsInstalling
  * @property {string} CONTENT_RELATIVE_PATH
  * @property {string} THEME_RELATIVE_PATH
+ * @property {boolean} isProduction
  * @property {DebuggerFunction} debugger
  */
 
@@ -61,6 +60,7 @@ const ETA = {
     appIsInstalling: false,
     CONTENT_RELATIVE_PATH,
     THEME_RELATIVE_PATH,
+    isProduction: config.IS_PRODUCTION,
     debugger: _debugger,
 };
 

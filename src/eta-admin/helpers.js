@@ -3,11 +3,17 @@
 import buffer from "node:buffer";
 import crypto from "node:crypto";
 import intval from "intval";
+import real_typeof from "@kdts/real-typeof";
 
 const etaPrefix = "eta-";
 
 const helpers = {};
 
+/**
+ *
+ * @param {string} dirname_str
+ * @returns {string}
+ */
 const ensure_eta_directory = dirname_str => {
     if (!/^eta\-/.test(dirname_str)) {
         dirname_str = `${etaPrefix}${dirname_str}`;
@@ -161,15 +167,24 @@ helpers.slugify = (str, uri = false) => {
  * @returns {string} The slugified filename
  */
 helpers.slugify_filename = filename => {
+    if (real_typeof(filename) !== "string") {
+        return "";
+    }
     // Split and remove all dots by splitting at '.'
     let nameArray = filename.split(".");
-    let extension = helpers.slugify(nameArray.pop());
+    let extension = helpers.slugify(nameArray.pop() ?? "");
     let name = helpers.slugify(nameArray.join("-"));
 
     return `${name}.${extension}`;
 };
 
-// Resolve site urls
+/**
+ * Resolve site urls
+ * @param {string} mountPoint
+ * @param {string} endPoint
+ * @param {boolean} [addSlashes=true]
+ * @returns
+ */
 helpers.resolve_uri = (mountPoint, endPoint = "", addSlashes = true) => {
     let url_path = "";
     switch (mountPoint) {
@@ -248,6 +263,19 @@ helpers.generate_salt = (salt_length, use_special_char) => {
 
 helpers.generate_simple_key = () => helpers.generate_salt(16, false);
 
+// https://stackoverflow.com/a/21196961/10908205
+// helpers.mkdir = (path, options, callback) => {
+//     if (typeof options === "function") {
+//         callback = options;
+//         options = {};
+//     }
+//     fs.mkdir(path, options, err => {
+//         if (err && err.code !== "EEXIST") {
+//             return callback(err);
+//         }
+//         return callback(null);
+//     });
+// };
 
 /**
  * Hash a given password using the nodejs built in crypto.pbkdf2
@@ -257,7 +285,7 @@ helpers.generate_simple_key = () => helpers.generate_salt(16, false);
  *  algorithm $ power_of_iterations $ keylength $ salt $ hash
  *
  * @param  {string} pwd the password to be hashed
- * @return {Promise} return a promise that resolves to [err, hash]
+ * @return {PromiseLike<[Error|null, string]>} return a promise that resolves to [err, hash]
  */
 helpers.hash_password = pwd => {
     // the salt should be at least 16 bytes long
@@ -282,7 +310,7 @@ helpers.hash_password = pwd => {
  * The hashstring muss have the format returned by helpers.password_hash
  * @param  {string} password
  * @param  {string} hash
- * @return {Promise} Promise that resolves to [err, hash]
+ * @return {PromiseLike<[Error|null, boolean]>} Promise that resolves to [err, hash]
  */
 helpers.verify_password = (password, hash) => {
     if (typeof password !== "string" || typeof hash !== "string") {
@@ -306,9 +334,29 @@ helpers.verify_password = (password, hash) => {
             if (!err) {
                 match = hashStr === derivedKey.toString("hex");
             }
-            resolve([err, match]);
+            resolve([err, !err && match]);
         });
     });
 };
+
+// bcrypt only takes the first 72 bytes of a string into account
+// import bcrypt from 'bcrypt';
+// const password_hash = (pwd) => {
+//     const saltRounds = 13;
+//     return new Promise((resolve, reject) => {
+//         bcrypt.hash(pwd, saltRounds, function(error, hash) {
+//             resolve([error, hash])
+//         })
+//     })
+
+// }
+
+// const password_verify = (pwd, hash) => {
+//     return new Promise((resolve, reject) => {
+//         bcrypt.compare(pwd, hash, function(error, result) {
+//             resolve([error, result])
+//         })
+//     })
+// }
 
 export default Object.freeze(helpers);
