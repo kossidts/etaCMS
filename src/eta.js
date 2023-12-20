@@ -3,7 +3,7 @@
 import "dotenv/config.js";
 
 import ETA from "./eta-admin/settings.js";
-// const ETAServer = ;
+import ETAServer from "./eta-server.js";
 
 // Debugger for this module
 const debug = ETA.debugger("app");
@@ -36,7 +36,7 @@ ETApp.init = () => {
     debug(`-------------------------------------------------`);
 
     // Invoke the web server
-    // CMSServer.init();
+    ETAServer.init();
     // console.log(ETA);
 };
 
